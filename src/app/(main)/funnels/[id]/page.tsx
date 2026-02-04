@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useTelegram } from '@/hooks/use-telegram';
-import { ArrowLeft, Play, Trash2, Copy, ExternalLink, Loader2, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Play, Trash2, Copy, ExternalLink, Loader2, BarChart3, Pencil } from 'lucide-react';
 
 const NODE_LABELS: Record<string, string> = {
   MESSAGE: 'Сообщение',
@@ -108,6 +108,13 @@ export default function FunnelPage() {
       </div>
 
       <div className="flex gap-2">
+        <Button asChild variant="outline" className="flex-1">
+          <Link href={`/funnels/${funnelId}/edit`}>
+            <Pencil className="w-4 h-4 mr-2" />
+            Редактировать
+          </Link>
+        </Button>
+
         {funnel.status !== 'ACTIVE' ? (
           <Button
             className="flex-1"

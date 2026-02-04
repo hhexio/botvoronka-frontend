@@ -81,6 +81,29 @@ export default function LoginPage() {
           <Button asChild className="w-full">
             <a href="https://t.me/BotVoronkaBot">Открыть в Telegram</a>
           </Button>
+          <div className="mt-4">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                dispatch(setCredentials({
+                  user: {
+                    id: 'demo-user',
+                    telegramId: '123456789',
+                    username: 'demo_user',
+                    firstName: 'Демо',
+                    lastName: 'Пользователь',
+                    plan: 'FREE',
+                  },
+                  accessToken: 'demo-token',
+                  refreshToken: 'demo-refresh',
+                }));
+                router.replace('/');
+              }}
+            >
+              Демо вход (для разработки)
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

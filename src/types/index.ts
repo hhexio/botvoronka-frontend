@@ -38,6 +38,7 @@ export interface Node {
   type: 'MESSAGE' | 'BUTTON' | 'CONDITION' | 'DELAY' | 'PAYMENT';
   name: string;
   content?: Record<string, unknown>;
+  position?: { x: number; y: number };
   funnelId: string;
 }
 
