@@ -1,90 +1,84 @@
 'use client';
 
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useGetFunnelsQuery } from '@/store/api/funnelsApi';
 import { useGetUserAnalyticsQuery } from '@/store/api/analyticsApi';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Layers, Users, CreditCard, TrendingUp } from 'lucide-react';
+import { StatCard } from '@/components/ui/stat-card';
+import { FunnelCard } from '@/components/ui/funnel-card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonShimmer } from '@/components/ui/skeleton-shimmer';
+import { PageTransition } from '@/components/ui/page-transition';
+import { Plus, Layers, Users, CreditCard, TrendingUp, ArrowRight } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 export default function DashboardPage() {
   const { data: funnels, isLoading: funnelsLoading } = useGetFunnelsQuery({ limit: 3 });
   const { data: analytics, isLoading: analyticsLoading } = useGetUserAnalyticsQuery();
 
+  const stats = [
+    { icon: Layers, label: 'Воронки', value: analytics?.summary?.totalFunnels || 0 },
+    { icon: Users, label: 'Лиды', value: analytics?.summary?.totalStarted || 0 },
+    { icon: CreditCard, label: 'Оплаты', value: analytics?.summary?.totalPaid || 0 },
+    { icon: TrendingUp, label: 'Доход', value: formatPrice(analytics?.summary?.totalRevenue || 0) },
+  ];
+
   return (
-    <div className="space-y-6">
-      <Button asChild className="w-full">
-        <Link href="/funnels/new">
-          <Plus className="w-4 h-4 mr-2" /> Создать воронку
-        </Link>
-      </Button>
+    <PageTransition>
+      <div className="space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h1 className="text-2xl font-bold">Добро пожаловать!</h1>
+          <p className="text-muted-foreground">Управляйте своими воронками продаж</p>
+        </motion.div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { icon: Layers, label: 'Воронки', value: analytics?.summary?.totalFunnels || 0 },
-          { icon: Users, label: 'Лиды', value: analytics?.summary?.totalStarted || 0 },
-          { icon: CreditCard, label: 'Оплаты', value: analytics?.summary?.totalPaid || 0 },
-          { icon: TrendingUp, label: 'Доход', value: formatPrice(analytics?.summary?.totalRevenue || 0) },
-        ].map(stat => (
-          <Card key={stat.label}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <stat.icon className="w-4 h-4" />
-                <span className="text-xs">{stat.label}</span>
-              </div>
-              {analyticsLoading ? <Skeleton className="h-8 w-16" /> : <p className="text-2xl font-bold">{stat.value}</p>}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Button asChild className="w-full h-12 text-base" size="lg">
+            <Link href="/funnels/new">
+              <Plus className="w-5 h-5 mr-2" /> Создать воронку
+            </Link>
+          </Button>
+        </motion.div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">Последние воронки</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/funnels">Все</Link>
+        <div className="grid grid-cols-2 gap-3">
+          {analyticsLoading
+            ? [1, 2, 3, 4].map(i => <SkeletonShimmer key={i} className="h-24" />)
+            : stats.map((stat, i) => (
+                <StatCard key={stat.label} icon={stat.icon} label={stat.label} value={stat.value} delay={i * 0.05} />
+              ))}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Последние воронки</h2>
+            <Button variant="ghost" size="sm" asChild className="text-muted-foreground">
+              <Link href="/funnels">Все <ArrowRight className="w-4 h-4 ml-1" /></Link>
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
+
           {funnelsLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
+            <div className="space-y-3">{[1, 2, 3].map(i => <SkeletonShimmer key={i} className="h-24" />)}</div>
           ) : funnels?.data.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              <Layers className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>У вас пока нет воронок</p>
-            </div>
+            <EmptyState
+              icon={<Layers className="w-10 h-10" />}
+              title="Нет воронок"
+              description="Создайте первую воронку, чтобы начать автоматизировать продажи"
+              action={<Button asChild><Link href="/funnels/new"><Plus className="w-4 h-4 mr-2" /> Создать воронку</Link></Button>}
+            />
           ) : (
             <div className="space-y-3">
-              {funnels?.data.map(funnel => (
-                <Link
-                  key={funnel.id}
-                  href={`/funnels/${funnel.id}`}
-                  className="block p-3 rounded-lg border hover:bg-gray-50"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{funnel.name}</p>
-                      <p className="text-sm text-muted-foreground">{funnel._count?.nodes || 0} шагов</p>
-                    </div>
-                    <Badge variant={funnel.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                      {funnel.status === 'ACTIVE' ? 'Активна' : 'Черновик'}
-                    </Badge>
-                  </div>
-                </Link>
-              ))}
+              {funnels?.data.map((funnel, i) => <FunnelCard key={funnel.id} funnel={funnel} index={i} />)}
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </PageTransition>
   );
 }

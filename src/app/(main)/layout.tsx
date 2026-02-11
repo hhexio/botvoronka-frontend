@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/store';
 import { Header } from '@/components/layout/header';
 import { BottomNav } from '@/components/layout/bottom-nav';
+import { OnboardingModal } from '@/components/onboarding/onboarding-modal';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -19,10 +20,11 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main className="px-4 py-4">{children}</main>
       <BottomNav />
+      <OnboardingModal />
     </div>
   );
 }

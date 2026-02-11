@@ -1,21 +1,44 @@
 'use client';
 
 import { useAppSelector } from '@/store';
-import { useGetSubscriptionQuery } from '@/store/api/billingApi';
+import { User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function Header() {
   const { user } = useAppSelector(state => state.auth);
-  const { data: subscription } = useGetSubscriptionQuery();
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b px-4 py-3">
-      <div className="flex items-center gap-3">
-        {user?.avatarUrl && <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full" />}
-        <div className="flex-1">
-          <p className="font-medium text-sm">{user?.firstName || 'Пользователь'}</p>
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-lg">
+      <div className="flex h-14 items-center justify-between px-4">
+        <div className="flex items-center gap-3">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">BV</span>
+            </div>
+            <span className="font-semibold hidden sm:inline">BotVoronka</span>
+          </div>
         </div>
-        <Badge variant={subscription?.plan === 'PRO' ? 'default' : 'secondary'}>{subscription?.plan || 'FREE'}</Badge>
+
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+
+          {user && (
+            <div className="flex items-center gap-3">
+              <Badge variant={user.plan === 'PRO' ? 'default' : 'secondary'} className="hidden sm:flex">
+                {user.plan}
+              </Badge>
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
