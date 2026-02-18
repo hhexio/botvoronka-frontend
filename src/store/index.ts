@@ -9,6 +9,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
 }
 
 const initialState: AuthState = {
@@ -16,6 +17,7 @@ const initialState: AuthState = {
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
+  isHydrated: false,
 };
 
 const authSlice = createSlice({
@@ -52,6 +54,7 @@ const authSlice = createSlice({
           state.isAuthenticated = true;
         }
       }
+      state.isHydrated = true;
     },
   },
 });

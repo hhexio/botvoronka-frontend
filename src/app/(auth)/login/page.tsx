@@ -13,13 +13,13 @@ export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { isReady, isTelegram, initData, user } = useTelegram();
-  const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { isAuthenticated, isHydrated } = useAppSelector(state => state.auth);
   const [login, { isLoading }] = useTelegramLoginMutation();
   const [tried, setTried] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) router.replace('/');
-  }, [isAuthenticated, router]);
+    if (isHydrated && isAuthenticated) router.replace('/funnels');
+  }, [isAuthenticated, isHydrated, router]);
 
   useEffect(() => {
     if (isReady && isTelegram && initData && !tried && !isAuthenticated) {
@@ -34,7 +34,7 @@ export default function LoginPage() {
     try {
       const result = await login({ initData }).unwrap();
       dispatch(setCredentials(result));
-      router.replace('/');
+      router.replace('/funnels');
     } catch (err) {
       console.error('Login failed:', err);
     }
@@ -98,7 +98,7 @@ export default function LoginPage() {
                   accessToken: 'demo-token',
                   refreshToken: 'demo-refresh',
                 }));
-                router.replace('/');
+                router.replace('/funnels');
               }}
             >
               Демо вход (для разработки)
