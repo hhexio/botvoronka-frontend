@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTelegram } from '@/hooks/use-telegram';
-import { useTelegramLoginMutation } from '@/store/api/authApi';
+import { useTelegramLoginMutation, useDemoLoginMutation } from '@/store/api/authApi';
 import { useAppDispatch, useAppSelector, setCredentials } from '@/store';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +15,7 @@ export default function LoginPage() {
   const { isReady, isTelegram, initData, user } = useTelegram();
   const { isAuthenticated, isHydrated } = useAppSelector(state => state.auth);
   const [login, { isLoading }] = useTelegramLoginMutation();
+  const [demoLogin, { isLoading: isDemoLoading }] = useDemoLoginMutation();
   const [tried, setTried] = useState(false);
 
   useEffect(() => {
@@ -85,22 +86,20 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => {
-                dispatch(setCredentials({
-                  user: {
-                    id: 'demo-user',
-                    telegramId: '123456789',
-                    username: 'demo_user',
-                    firstName: 'Демо',
-                    lastName: 'Пользователь',
-                    plan: 'FREE',
-                  },
-                  accessToken: 'demo-token',
-                  refreshToken: 'demo-refresh',
-                }));
-                router.replace('/funnels');
+              disabled={isDemoLoading}
+              onClick={async () => {
+                try {
+                  const result = await demoLogin().unwrap();
+                  dispatch(setCredentials(result));
+                  router.replace('/funnels');
+                } catch (error) {
+                  console.error('Demo login failed:', error);
+                }
               }}
             >
+              {isDemoLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
               Демо вход (для разработки)
             </Button>
           </div>

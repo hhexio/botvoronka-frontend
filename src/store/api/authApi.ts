@@ -11,7 +11,11 @@ export const authApi = baseApi.injectEndpoints({
       query: () => '/users/me',
       providesTags: ['User'],
     }),
+    demoLogin: builder.mutation<AuthResponse, void>({
+      query: () => ({ url: '/auth/demo', method: 'POST' }),
+      invalidatesTags: ['User'],
+    }),
   }),
 });
 
-export const { useTelegramLoginMutation, useGetMeQuery } = authApi;
+export const { useTelegramLoginMutation, useGetMeQuery, useDemoLoginMutation } = authApi;
