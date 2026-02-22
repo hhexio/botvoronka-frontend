@@ -1,5 +1,6 @@
 'use client';
 
+import { toast } from 'sonner';
 import { useGetSubscriptionQuery, useSubscribeMutation } from '@/store/api/billingApi';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +37,10 @@ export default function BillingPage() {
         window.open(result.paymentUrl, '_blank');
       }
       haptic('success');
+      toast.success('Подписка оформлена');
     } catch {
       haptic('error');
+      toast.error('Ошибка при оформлении подписки');
     }
   };
 

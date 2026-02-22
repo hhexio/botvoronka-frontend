@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useGetFunnelQuery, usePublishFunnelMutation, useDeleteFunnelMutation } from '@/store/api/funnelsApi';
+import { toast } from 'sonner';
+import { useGetFunnelQuery, usePublishFunnelMutation, useDeleteFunnelMutation, useDuplicateFunnelMutation } from '@/store/api/funnelsApi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +42,7 @@ export default function FunnelPage() {
   const { data: funnel, isLoading } = useGetFunnelQuery(funnelId);
   const [publish, { isLoading: isPublishing }] = usePublishFunnelMutation();
   const [deleteFunnel, { isLoading: isDeleting }] = useDeleteFunnelMutation();
+  const [duplicateFunnel, { isLoading: isDuplicating }] = useDuplicateFunnelMutation();
 
   const handlePublish = async () => {
     haptic('light');
@@ -48,8 +50,10 @@ export default function FunnelPage() {
       const result = await publish(funnelId).unwrap();
       setBotLink(result.botLink);
       haptic('success');
+      toast.success('Воронка опубликована');
     } catch {
       haptic('error');
+      toast.error('Ошибка при публикации');
     }
   };
 
@@ -58,9 +62,24 @@ export default function FunnelPage() {
     try {
       await deleteFunnel(funnelId).unwrap();
       haptic('success');
+      toast.success('Воронка удалена');
       router.replace('/funnels');
     } catch {
       haptic('error');
+      toast.error('Ошибка при удалении');
+    }
+  };
+
+  const handleDuplicate = async () => {
+    haptic('light');
+    try {
+      const newFunnel = await duplicateFunnel(funnelId).unwrap();
+      haptic('success');
+      toast.success('Воронка дублирована');
+      router.push(`/funnels/${newFunnel.id}`);
+    } catch {
+      haptic('error');
+      toast.error('Ошибка при дублировании');
     }
   };
 
@@ -115,6 +134,12 @@ export default function FunnelPage() {
           </Link>
         </Button>
 
+        <Button variant="outline" onClick={handleDuplicate} disabled={isDuplicating}>
+          {isDuplicating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+        </Button>
+      </div>
+
+      <div className="flex gap-2">
         {funnel.status !== 'ACTIVE' ? (
           <Button
             className="flex-1"

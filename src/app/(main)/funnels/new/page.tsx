@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { useGetTemplatesQuery, useCreateFromTemplateMutation } from '@/store/api/funnelsApi';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,9 +26,11 @@ export default function NewFunnelPage() {
     try {
       const funnel = await create({ templateId }).unwrap();
       haptic('success');
+      toast.success('Воронка создана');
       router.push(`/funnels/${funnel.id}`);
     } catch {
       haptic('error');
+      toast.error('Ошибка при создании воронки');
     }
   };
 

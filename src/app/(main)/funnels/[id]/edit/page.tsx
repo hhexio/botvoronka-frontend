@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { useGetFunnelQuery } from '@/store/api/funnelsApi';
-import { useGetNodesQuery, useCreateNodeMutation, useUpdateNodeMutation, useDeleteNodeMutation } from '@/store/api/nodesApi';
+import { useGetNodesQuery, useCreateNodeMutation, useUpdateNodeMutation, useDeleteNodeMutation, useReorderNodeMutation } from '@/store/api/nodesApi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -80,6 +81,7 @@ export default function EditFunnelPage() {
   const [createNode, { isLoading: isCreating }] = useCreateNodeMutation();
   const [updateNode, { isLoading: isUpdating }] = useUpdateNodeMutation();
   const [deleteNode, { isLoading: isDeleting }] = useDeleteNodeMutation();
+  const [reorderNode] = useReorderNodeMutation();
 
   const isLoading = funnelLoading || nodesLoading;
 
@@ -96,8 +98,10 @@ export default function EditFunnelPage() {
         },
       }).unwrap();
       haptic('success');
+      toast.success('Шаг добавлен');
     } catch {
       haptic('error');
+      toast.error('Ошибка при добавлении шага');
     }
   };
 
@@ -119,10 +123,12 @@ export default function EditFunnelPage() {
         },
       }).unwrap();
       haptic('success');
+      toast.success('Шаг сохранён');
       setIsSheetOpen(false);
       setEditingNode(null);
     } catch {
       haptic('error');
+      toast.error('Ошибка при сохранении');
     }
   };
 
@@ -132,9 +138,11 @@ export default function EditFunnelPage() {
     try {
       await deleteNode({ id: deleteNodeId, funnelId }).unwrap();
       haptic('success');
+      toast.success('Шаг удалён');
       setDeleteNodeId(null);
     } catch {
       haptic('error');
+      toast.error('Ошибка при удалении');
     }
   };
 
@@ -147,16 +155,12 @@ export default function EditFunnelPage() {
 
     if (newIndex < 0 || newIndex >= nodes.length) return;
 
-    // Меняем позиции (упрощённая логика — в реальности нужен endpoint для reorder)
-    // Пока просто обновляем position
     try {
-      await updateNode({
-        id: node.id,
-        data: { position: { x: 0, y: newIndex * 100 } },
-      }).unwrap();
+      await reorderNode({ id: node.id, newOrder: newIndex }).unwrap();
       haptic('success');
     } catch {
       haptic('error');
+      toast.error('Ошибка при перемещении');
     }
   };
 
@@ -188,7 +192,7 @@ export default function EditFunnelPage() {
               <Label htmlFor="buttonText">Текст перед кнопками</Label>
               <textarea
                 id="buttonText"
-                className="w-full mt-1.5 p-3 border rounded-lg min-h-[80px] resize-none"
+                className="w-full mt-1.5 p-3 border rounded-lg min-h-20 resize-none"
                 placeholder="Выберите действие..."
                 value={(editedContent.text as string) || ''}
                 onChange={e => setEditedContent({ ...editedContent, text: e.target.value })}
