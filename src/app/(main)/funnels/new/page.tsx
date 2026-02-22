@@ -6,12 +6,13 @@ import { useGetTemplatesQuery, useCreateFromTemplateMutation } from '@/store/api
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTelegram } from '@/hooks/use-telegram';
-import { MessageSquare, Calendar, Gift, FileText, Loader2 } from 'lucide-react';
+import { MessageSquare, Calendar, Gift, FileText, Video, Loader2 } from 'lucide-react';
 
 const ICONS: Record<string, typeof MessageSquare> = {
   course: MessageSquare,
   consultation: Calendar,
   leadmagnet: Gift,
+  webinar: Video,
   empty: FileText,
 };
 
