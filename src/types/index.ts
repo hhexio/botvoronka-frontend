@@ -65,14 +65,32 @@ export interface FunnelAnalytics {
   recentSessions: Array<{ id: string; visitorName: string; status: string; startedAt: string }>;
 }
 
+export interface RecentSession {
+  id: string;
+  visitorName: string;
+  funnelName: string;
+  status: 'ACTIVE' | 'COMPLETED' | 'ABANDONED' | 'PAID';
+  startedAt: string;
+}
+
 export interface UserAnalytics {
   summary: {
     totalFunnels: number;
+    activeFunnels: number;
     totalStarted: number;
     totalCompleted: number;
     totalPaid: number;
     totalRevenue: number;
+    overallConversion: string;
   };
+  funnels: Array<{
+    id: string;
+    name: string;
+    status: string;
+    nodesCount: number;
+    stats: { started: number; completed: number; paid: number; revenue: number; conversion: string };
+  }>;
+  recentSessions: RecentSession[];
 }
 
 export interface PaginatedResponse<T> {

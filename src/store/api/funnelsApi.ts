@@ -30,6 +30,10 @@ export const funnelsApi = baseApi.injectEndpoints({
       query: id => ({ url: `/funnels/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Funnel'],
     }),
+    duplicateFunnel: builder.mutation<Funnel, string>({
+      query: id => ({ url: `/funnels/${id}/duplicate`, method: 'POST' }),
+      invalidatesTags: ['Funnel'],
+    }),
   }),
 });
 
@@ -41,4 +45,5 @@ export const {
   useUpdateFunnelMutation,
   usePublishFunnelMutation,
   useDeleteFunnelMutation,
+  useDuplicateFunnelMutation,
 } = funnelsApi;

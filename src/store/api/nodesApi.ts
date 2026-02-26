@@ -22,7 +22,21 @@ export const nodesApi = baseApi.injectEndpoints({
       query: ({ id }) => ({ url: `/nodes/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Node', 'Funnel'],
     }),
+    reorderNode: builder.mutation<Node, { id: string; newOrder: number }>({
+      query: ({ id, newOrder }) => ({
+        url: `/nodes/${id}/reorder`,
+        method: 'PATCH',
+        body: { newOrder },
+      }),
+      invalidatesTags: ['Node'],
+    }),
   }),
 });
 
-export const { useGetNodesQuery, useCreateNodeMutation, useUpdateNodeMutation, useDeleteNodeMutation } = nodesApi;
+export const {
+  useGetNodesQuery,
+  useCreateNodeMutation,
+  useUpdateNodeMutation,
+  useDeleteNodeMutation,
+  useReorderNodeMutation,
+} = nodesApi;
