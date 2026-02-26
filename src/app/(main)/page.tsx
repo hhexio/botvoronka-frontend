@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useGetFunnelsQuery } from '@/store/api/funnelsApi';
 import { useGetUserAnalyticsQuery } from '@/store/api/analyticsApi';
+import { useAppSelector } from '@/store';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/ui/stat-card';
 import { FunnelCard } from '@/components/ui/funnel-card';
@@ -16,12 +17,20 @@ import { formatPrice } from '@/lib/utils';
 export default function DashboardPage() {
   const { data: funnels, isLoading: funnelsLoading } = useGetFunnelsQuery({ limit: 3 });
   const { data: analytics, isLoading: analyticsLoading } = useGetUserAnalyticsQuery();
+  const user = useAppSelector(state => state.auth.user);
+
+  const greeting = user?.firstName ? `Привет, ${user.firstName}!` : 'Добро пожаловать!';
+  const currentDate = new Date().toLocaleDateString('ru-RU', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
 
   const stats = [
-    { icon: Layers, label: 'Воронки', value: analytics?.summary?.totalFunnels || 0 },
-    { icon: Users, label: 'Лиды', value: analytics?.summary?.totalStarted || 0 },
-    { icon: CreditCard, label: 'Оплаты', value: analytics?.summary?.totalPaid || 0 },
-    { icon: TrendingUp, label: 'Доход', value: formatPrice(analytics?.summary?.totalRevenue || 0) },
+    { icon: Layers, label: 'Воронки', value: analytics?.summary?.totalFunnels ?? 0 },
+    { icon: TrendingUp, label: 'Активных', value: analytics?.summary?.totalStarted ?? 0 },
+    { icon: Users, label: 'Лиды', value: analytics?.summary?.totalCompleted ?? 0 },
+    { icon: CreditCard, label: 'Доход', value: formatPrice(analytics?.summary?.totalRevenue ?? 0) },
   ];
 
   return (
@@ -31,18 +40,24 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-2xl font-bold">Добро пожаловать!</h1>
-          <p className="text-muted-foreground">Управляйте своими воронками продаж</p>
+          <h1 className="text-2xl font-bold">{greeting}</h1>
+          <p className="text-muted-foreground capitalize">{currentDate}</p>
         </motion.div>
 
         <motion.div
+          className="grid grid-cols-2 gap-3"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <Button asChild className="w-full h-12 text-base" size="lg">
+          <Button asChild className="h-12 text-base" size="lg">
             <Link href="/funnels/new">
               <Plus className="w-5 h-5 mr-2" /> Создать воронку
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="h-12 text-base" size="lg">
+            <Link href="/funnels">
+              <Layers className="w-5 h-5 mr-2" /> Все воронки
             </Link>
           </Button>
         </motion.div>
