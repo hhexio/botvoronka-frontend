@@ -33,6 +33,13 @@ export const funnelsApi = baseApi.injectEndpoints({
     duplicateFunnel: builder.mutation<Funnel, string>({
       query: id => ({ url: `/funnels/${id}/duplicate`, method: 'POST' }),
       invalidatesTags: ['Funnel'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data: newFunnel } = await queryFulfilled;
+          // Pre-populate cache so navigating to the new page is instant (no second request)
+          dispatch(funnelsApi.util.upsertQueryData('getFunnel', newFunnel.id, newFunnel));
+        } catch {}
+      },
     }),
   }),
 });
